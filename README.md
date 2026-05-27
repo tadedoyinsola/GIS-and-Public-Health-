@@ -110,14 +110,6 @@ Assignment-specific dependencies are noted in the corresponding subdirectory `RE
 The Python implementations in this repository do not reproduce or distribute proprietary curriculum materials; they reconstruct the analytical workflows in open-source tooling for educational and portfolio purposes.
 
 ---
-## Results
-
-
-![Top five U.S. states by male lung cancer mortality, 2000–2004](outputs/maps/Assignment2_1_Oladeji.jpg)
-
-The five highest-mortality states for White males cluster in a contiguous Appalachian and Mid-South belt (Kentucky, West Virginia, Tennessee, Arkansas, Mississippi), while the top five for Black males are geographically dispersed, a pattern partly attributable to small-denominator instability in states with low Black populations. Mississippi and Louisiana appear in both rankings, identifying them as cross-population priority areas. Full interpretive discussion is provided in the notebook.
-
-
 
 ## License
 
