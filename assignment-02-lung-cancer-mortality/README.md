@@ -18,7 +18,7 @@ Python replication of an ArcGIS Pro exercise from *GIS Tutorial for Health* (Kur
 | Assignment | Geography           | Notebook                                |
 |------------|---------------------|------------------------------------------|
 | 2-1        | U.S. states         | `notebooks/assignment_2_1_state_level.ipynb` |
-| 2-2        | Kentucky counties   | *(in progress)*                          |
+| 2-2        | Kentucky counties   | *(completed)*                          |
 
 ## Data
 
