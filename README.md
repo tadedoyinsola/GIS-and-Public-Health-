@@ -2,6 +2,7 @@
 
 A collection of geospatial analyses for public health problems, implemented in Python alongside their original ArcGIS Pro versions. Each project reproduces a graduate-level project in open-source tooling, providing both a learning record and a reproducible reference for similar spatial epidemiology workflows.
 
+Link to the live Dashboard: https://tadedoyinsola.github.io/GIS-and-Public-Health-/  
 ---
 
 ## About this repository
