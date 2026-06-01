@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kentucky Lung Cancer Mortality — Interactive Geospatial Analysis</title>
+    <meta name="description" content="An interactive web map exploring lung cancer mortality patterns in Kentucky (2000–2004) by race and sex, built with Python, GeoPandas, and Folium. A reproducible geospatial public health portfolio piece by Tolulope Adedoyin Oladeji.">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.65;
+            color: #2c3e50;
+            background-color: #fafafa;
+        }
+        .container {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 60px 32px 80px 32px;
+        }
+        .hero {
+            border-bottom: 3px solid #c0392b;
+            padding-bottom: 28px;
+            margin-bottom: 36px;
+        }
+        .hero-subtitle {
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #c0392b;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        h1 {
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: #1a1a1a;
+            line-height: 1.2;
+            margin-bottom: 14px;
+        }
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-top: 40px;
+            margin-bottom: 14px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e1e1e1;
+        }
+        h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-top: 24px;
+            margin-bottom: 8px;
+        }
+        .byline {
+            font-size: 0.95rem;
+            color: #6c757d;
+        }
+        .byline a {
+            color: #c0392b;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .byline a:hover {
+            text-decoration: underline;
+        }
+        p {
+            margin-bottom: 14px;
+            font-size: 1.0rem;
+        }
+        .lead {
+            font-size: 1.1rem;
+            color: #34495e;
+            margin-bottom: 20px;
+        }
+        .cta {
+            display: inline-block;
+            background-color: #c0392b;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.0rem;
+            margin: 18px 0 30px 0;
+            transition: background-color 0.15s ease;
+        }
+        .cta:hover {
+            background-color: #962d22;
+        }
+        .key-finding {
+            background-color: #fdf4f3;
+            border-left: 4px solid #c0392b;
+            padding: 18px 22px;
+            margin: 22px 0;
+            border-radius: 0 4px 4px 0;
+        }
+        .key-finding strong {
+            color: #962d22;
+        }
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+        li {
+            margin-bottom: 6px;
+        }
+        .stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .stack-tag {
+            background-color: #ecf0f1;
+            color: #34495e;
+            font-size: 0.82rem;
+            padding: 4px 11px;
+            border-radius: 12px;
+            font-family: ui-monospace, "SF Mono", Consolas, monospace;
+        }
+        footer {
+            margin-top: 60px;
+            padding-top: 24px;
+            border-top: 1px solid #e1e1e1;
+            font-size: 0.85rem;
+            color: #6c757d;
+        }
+        footer a {
+            color: #c0392b;
+            text-decoration: none;
+        }
+        footer a:hover {
+            text-decoration: underline;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: ui-monospace, "SF Mono", Consolas, monospace;
+            font-size: 0.9em;
+        }
+        .meta-note {
+            background-color: #f8f9fa;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            padding: 14px 18px;
+            margin: 20px 0;
+            font-size: 0.92rem;
+            color: #495057;
+        }
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 20px;
+            }
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <header class="hero">
+            <div class="hero-subtitle">Geospatial Public Health Portfolio</div>
+            <h1>Kentucky Lung Cancer Mortality, 2000–2004</h1>
+            <p class="byline">
+                An interactive geospatial analysis by
+                <a href="https://www.linkedin.com/in/tolulope-oladeji-aa988a192/" target="_blank" rel="noopener">Tolulope Adedoyin Oladeji</a>
+                &nbsp;|&nbsp;
+                <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank" rel="noopener">View source on GitHub</a>
+            </p>
+        </header>
+
+        <p class="lead">
+            This interactive map explores county-level lung cancer mortality patterns across Kentucky, examining how mortality rates and total death counts differ between Black and White males during 2000–2004. The analysis identifies the two counties — Knox and Gallatin — where both racial groups exceeded a mortality threshold of 150 per 100,000, representing cross-population priority areas for public health intervention.
+        </p>
+
+        <a href="kentucky_lung_cancer_interactive.html" class="cta">Open the Interactive Map →</a>
+
+        <h2>Background</h2>
+        <p>
+            Lung cancer is the leading cause of cancer death in the United States, and Kentucky consistently records among the highest age-adjusted mortality rates in the nation. The geographic distribution of this burden is uneven: certain Appalachian counties experience dramatically elevated rates, driven by a combination of historical smoking prevalence, occupational exposure in coal-mining economies, and disparities in screening and healthcare access.
+        </p>
+        <p>
+            This analysis uses publicly available data from the National Cancer Institute's Cancer Mortality Maps to map and interrogate that geographic variation at the county level. The interactive map allows viewers to toggle between rate-based and count-based perspectives, examine the methodological limitations of race-specific county-level estimates, and identify the cross-population priority counties.
+        </p>
+
+        <h2>Key Findings</h2>
+
+        <div class="key-finding">
+            <strong>Two cross-population priority counties identified.</strong> Knox County in the southeastern Appalachian region and Gallatin County in the north both exceeded the 150-per-100,000 mortality threshold for Black and White males simultaneously. Knox represents a high-confidence epidemiological signal consistent with the broader Appalachian pattern; Gallatin, given its small population, warrants careful interpretation for small-numerator effects.
+        </div>
+
+        <h3>Pattern 1: Spatially coherent White male mortality in eastern Kentucky</h3>
+        <p>
+            Fourteen Kentucky counties exhibit White male mortality rates exceeding 150 per 100,000 — a tight cluster across the eastern Appalachian region including Lee, Owsley, Knott, McCreary, Perry, and Knox counties. In line with documented epidemiological patterns, this concentration reflects shared regional drivers spanning occupational exposure, smoking prevalence, and healthcare access disparities.
+        </p>
+
+        <h3>Pattern 2: Statistical fragility of race-specific county-level rates</h3>
+        <p>
+            Of Kentucky's 120 counties, 55 (45.8%) recorded a Black male mortality rate of zero in the source data — reflecting absent or negligible Black populations rather than true zero mortality. According to standard public health surveillance practice, these values are best treated as missing rather than as substantive zeros. This methodological consideration is essential for responsible interpretation of race-stratified county-level data in low-diversity states.
+        </p>
+
+        <h3>Pattern 3: Rates and counts identify different things</h3>
+        <p>
+            The five counties with the highest total male lung cancer death counts — Jefferson (Louisville), Fayette (Lexington), Kenton, Daviess, and Warren — cluster around urban population centers, while the highest-rate counties cluster in rural Appalachia. This contrast illustrates a fundamental public health surveillance principle: <em>rates identify where risk is elevated, while counts identify where total burden is concentrated</em>. Effective intervention planning requires both perspectives — targeted risk reduction in rural high-rate counties, alongside absolute case-volume management in urban high-count counties.
+        </p>
+
+        <h2>Methodology</h2>
+        <p>
+            The interactive map is generated entirely in Python using the open-source geospatial stack. County boundaries and mortality data come from the National Cancer Institute Cancer Mortality Maps tool. The Python implementation performs spatial filtering, projection management, attribute-based selection, and choropleth construction; the resulting interactive map uses Folium (a Python wrapper for Leaflet.js) to produce a self-contained HTML artifact.
+        </p>
+
+        <div class="stack">
+            <span class="stack-tag">Python 3.11</span>
+            <span class="stack-tag">GeoPandas</span>
+            <span class="stack-tag">Folium / Leaflet.js</span>
+            <span class="stack-tag">pyogrio</span>
+            <span class="stack-tag">pandas</span>
+            <span class="stack-tag">branca</span>
+        </div>
+
+        <div class="meta-note">
+            <strong>Reproducibility:</strong> The full Python implementation, including static-map versions and the source notebook for this interactive map, is available at the <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank" rel="noopener">project's GitHub repository</a>. Anyone with the textbook data can re-run the entire analysis end-to-end.
+        </div>
+
+        <h2>About the Author</h2>
+        <p>
+            <strong>Tolulope Adedoyin Oladeji</strong> is a PhD student in Geography and GIS at the University of Cincinnati and a Graduate Research Assistant at the Digital Epidemiology Laboratory. Her research integrates geospatial AI, remote sensing, and spatial epidemiology, with applied work in maternal and child health vulnerability mapping across low- and middle-income countries.
+        </p>
+        <p>
+            <a href="https://scholar.google.com/citations?user=pPv5YB8AAAAJ&hl=en" target="_blank" rel="noopener">Google Scholar</a>
+            &nbsp;|&nbsp;
+            <a href="https://www.linkedin.com/in/tolulope-oladeji-aa988a192/" target="_blank" rel="noopener">LinkedIn</a>
+            &nbsp;|&nbsp;
+            <a href="https://github.com/tadedoyinsola" target="_blank" rel="noopener">GitHub</a>
+            &nbsp;|&nbsp;
+            <a href="https://adedoyinsola.medium.com" target="_blank" rel="noopener">Medium</a>
+        </p>
+
+        <h2>Attribution</h2>
+        <p>
+            This analysis is a Python re-implementation of an ArcGIS Pro exercise from the <em>GIS Tutorial for Health</em> (Kurland &amp; Gorr, Esri Press), originally delivered in a graduate course on GIS and Public Health at the University of Cincinnati. Curriculum design and assignment specifications are by <strong>Dr. Diego Cuadros</strong> (UC Digital Epidemiology Laboratory). The Python implementation, interactive map design, and interpretive analysis are by the author.
+        </p>
+
+        <footer>
+            <p>
+                Built with open-source tools. Hosted free via GitHub Pages.
+                <br>
+                Code released under the MIT License. Last updated May 2026.
+            </p>
+        </footer>
+
+    </div>
+</body>
+</html>
