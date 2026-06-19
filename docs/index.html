@@ -68,16 +68,18 @@
         }
         .projects {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
-            gap: 28px;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
             margin: 36px 0;
         }
         .project-card {
             background-color: white;
             border: 1px solid #e1e1e1;
             border-radius: 8px;
-            padding: 28px;
+            padding: 26px;
             transition: transform 0.18s ease, box-shadow 0.18s ease;
+            display: flex;
+            flex-direction: column;
         }
         .project-card:hover {
             transform: translateY(-3px);
@@ -92,28 +94,29 @@
             margin-bottom: 10px;
         }
         .project-card h3 {
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             font-weight: 600;
             color: #1a1a1a;
             margin-bottom: 12px;
             line-height: 1.3;
         }
         .project-card p {
-            font-size: 0.98rem;
+            font-size: 0.95rem;
             color: #5a6c7d;
             margin-bottom: 16px;
         }
         .project-card .findings {
-            font-size: 0.88rem;
+            font-size: 0.86rem;
             color: #34495e;
             background-color: #fdf4f3;
             padding: 12px 14px;
             border-left: 3px solid #c0392b;
             border-radius: 0 4px 4px 0;
             margin-bottom: 18px;
+            flex-grow: 1;
         }
         .project-card .meta {
-            font-size: 0.82rem;
+            font-size: 0.78rem;
             color: #8a98a5;
             margin-bottom: 18px;
             font-family: ui-monospace, "SF Mono", Consolas, monospace;
@@ -128,14 +131,24 @@
             font-weight: 600;
             font-size: 0.92rem;
             transition: background-color 0.15s ease;
+            align-self: flex-start;
         }
         .project-card .cta:hover { background-color: #962d22; }
-        .project-card .cta.secondary {
+        .project-card .type-label {
+            display: inline-block;
+            font-size: 0.72rem;
             background-color: #ecf0f1;
-            color: #34495e;
+            color: #5a6c7d;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: 500;
             margin-left: 8px;
+            vertical-align: middle;
         }
-        .project-card .cta.secondary:hover { background-color: #d5dbdc; }
+        .project-card .type-label.interactive {
+            background-color: #d4e8d4;
+            color: #2e6b2e;
+        }
         .bio {
             background-color: white;
             border: 1px solid #e1e1e1;
@@ -144,9 +157,7 @@
             margin-top: 40px;
         }
         .bio h2 { margin-top: 0; }
-        .bio p {
-            margin-bottom: 14px;
-        }
+        .bio p { margin-bottom: 14px; }
         .stack {
             display: flex;
             flex-wrap: wrap;
@@ -196,14 +207,14 @@
             <div class="hero-subtitle">Geospatial Public Health Portfolio</div>
             <h1>Mapping Health, Geographically</h1>
             <p class="author">
-                Interactive analyses by
+                Reproducible spatial analyses by
                 <a href="https://www.linkedin.com/in/tolulope-oladeji-aa988a192/" target="_blank" rel="noopener">Tolulope Adedoyin Oladeji</a>,
                 PhD student in Geography and GIS, University of Cincinnati
             </p>
         </header>
 
         <p class="intro">
-            A growing collection of reproducible, browser-based geospatial public health analyses. Each project pairs an interactive map with a Python implementation that anyone can clone, audit, and re-run. Built entirely in open-source tooling — GeoPandas, Folium, and Leaflet.js — and hosted free via GitHub Pages.
+            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, and health insurance access. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
         </p>
 
         <h2>Projects</h2>
@@ -211,28 +222,50 @@
         <div class="projects">
 
             <article class="project-card">
-                <div class="project-tag">Spatial Epidemiology</div>
+                <div class="project-tag">
+                    Spatial Epidemiology
+                    <span class="type-label interactive">Interactive</span>
+                </div>
                 <h3>Kentucky Lung Cancer Mortality, 2000–2004</h3>
                 <p>
-                    A county-level analysis of lung cancer mortality across Kentucky, exploring race-stratified mortality rates, methodologically defensible treatment of small-denominator estimates, and identification of cross-population priority counties.
+                    A county-level analysis of lung cancer mortality across Kentucky, exploring race-stratified mortality rates and identifying cross-population priority counties.
                 </p>
                 <div class="findings">
-                    <strong>Key finding:</strong> Knox and Gallatin counties identified as cross-population priority targets — the only Kentucky counties exceeding the 150-per-100,000 mortality threshold for both Black and White males simultaneously.
+                    <strong>Key finding:</strong> Knox and Gallatin counties identified as the only Kentucky counties exceeding the 150-per-100,000 mortality threshold for both Black and White males simultaneously.
                 </div>
-                <div class="meta">geopandas · folium · mapclassify · 120 counties</div>
+                <div class="meta">geopandas · folium · 120 counties</div>
                 <a href="kentucky/" class="cta">View project →</a>
             </article>
 
             <article class="project-card">
-                <div class="project-tag">Health Geography &amp; Demography</div>
-                <h3>Harris County, Texas — Tract-Level Indicators</h3>
+                <div class="project-tag">
+                    Health Insurance Geography
+                    <span class="type-label">Static</span>
+                </div>
+                <h3>California Uninsured and Minority Populations</h3>
                 <p>
-                    An interactive exploration of four census tract-level indicators across Houston's home county — population density, vacant housing, poverty, and unemployment — with one-click navigation to Pasadena and Baytown as focal cities of comparison.
+                    A three-panel comparative analysis of uninsured rates and minority population distributions across California's 58 counties, with statistical correlation analysis.
                 </p>
                 <div class="findings">
-                    <strong>Methodological centerpiece:</strong> Demonstrates automated cartographic production via Python's <code style="background:#fff;padding:1px 4px;border-radius:2px;">PdfPages</code> backend, replicating ArcGIS Pro's Map Series technique programmatically across 10 Harris County cities.
+                    <strong>Headline result:</strong> Uninsured rate is strongly correlated with Hispanic population share (r = 0.72) but completely independent of Black population share (r = 0.00) — a finding with direct implications for coverage-expansion outreach strategy.
                 </div>
-                <div class="meta">geopandas · folium · mapclassify · 649 tracts · 56 cities</div>
+                <div class="meta">geopandas · matplotlib · 58 counties</div>
+                <a href="california/" class="cta">View project →</a>
+            </article>
+
+            <article class="project-card">
+                <div class="project-tag">
+                    Health Geography &amp; Demography
+                    <span class="type-label interactive">Interactive</span>
+                </div>
+                <h3>Harris County, Texas — Tract-Level Indicators</h3>
+                <p>
+                    An interactive exploration of four tract-level indicators across Houston's home county, with one-click navigation to Pasadena and Baytown as focal cities.
+                </p>
+                <div class="findings">
+                    <strong>Methodological centerpiece:</strong> Demonstrates automated cartographic production via Python's PdfPages backend, replicating ArcGIS Pro's Map Series technique programmatically across 10 cities.
+                </div>
+                <div class="meta">geopandas · folium · 649 tracts · 56 cities</div>
                 <a href="harris-county/" class="cta">View project →</a>
             </article>
 
