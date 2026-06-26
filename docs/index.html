@@ -149,6 +149,10 @@
             background-color: #d4e8d4;
             color: #2e6b2e;
         }
+        .project-card .type-label.dashboard {
+            background-color: #e8d4ec;
+            color: #5e3c99;
+        }
         .bio {
             background-color: white;
             border: 1px solid #e1e1e1;
@@ -214,7 +218,7 @@
         </header>
 
         <p class="intro">
-            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, and health insurance access. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
+            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, health insurance access, and environmental health. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
         </p>
 
         <h2>Projects</h2>
@@ -267,6 +271,22 @@
                 </div>
                 <div class="meta">geopandas · folium · 649 tracts · 56 cities</div>
                 <a href="harris-county/" class="cta">View project →</a>
+            </article>
+
+            <article class="project-card">
+                <div class="project-tag">
+                    Environmental Health
+                    <span class="type-label dashboard">Dashboard</span>
+                </div>
+                <h3>Allegheny County Childhood Lead Exposure</h3>
+                <p>
+                    A spatial epidemiological analysis of elevated childhood blood lead cases against three housing indicators (era, market quality, condition), with formal Moran's I spatial autocorrelation testing and LISA cluster identification.
+                </p>
+                <div class="findings">
+                    <strong>Methodological centerpiece:</strong> Global Moran's I = 0.465 (p &lt; 0.001) formally validates the lead-exposure clustering; LISA decomposition identifies 48 statistically significant hotspot tracts. Directly supports EPA Lead Strategy and Federal Lead Action Plan targeting priorities.
+                </div>
+                <div class="meta">geopandas · pysal · folium · 416 tracts</div>
+                <a href="allegheny/" class="cta">View project →</a>
             </article>
 
         </div>
