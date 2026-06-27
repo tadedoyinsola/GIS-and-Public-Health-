@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pittsburgh Child Pedestrian Injury Geography</title>
+    <meta name="description" content="A neighborhood-level spatial analysis of child pedestrian injuries in Pittsburgh, with proximity buffers around playgrounds, schools, and convenience stores. Built with Python, GeoPandas, and Folium by Tolulope Adedoyin Oladeji.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Direction C: Indigo & Coral Sunset */
+            --primary-dark: #1F2A55;       /* deep indigo */
+            --primary: #2D3A6E;            /* indigo */
+            --primary-light: #5B6BA8;      /* lighter indigo */
+            --primary-tint: #E8EBF5;       /* very light indigo tint */
+
+            --accent: #E07856;             /* warm coral / persimmon */
+            --accent-light: #F4B8A0;       /* light warm coral */
+            --accent-soft: #FBE8DE;        /* coral wash */
+
+            --gold: #E4B255;               /* warm gold for hero eyebrow */
+
+            --bg: #FBF8F4;                 /* soft warm white background */
+            --bg-soft: #F4EFE6;            /* warmer cream-tan for soft panels */
+            --card: #FFFFFF;
+
+            --text: #1A1A2E;               /* near-black with indigo undertone */
+            --text-muted: #5C6378;
+            --divider: #E7E0D3;            /* warm divider */
+
+            --success: #3D7A5C;
+            --warning: #C5841F;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s;
+        }
+        a:hover { border-bottom-color: var(--accent); }
+
+        /* ============================================================
+           HERO
+           ============================================================ */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 64px 0 80px 0;
+            position: relative;
+        }
+        .hero-eyebrow {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 48px;
+            align-items: flex-start;
+        }
+        .hero-title-block h1 {
+            font-size: 2.8rem;
+            color: white;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            max-width: 740px;
+        }
+        .hero-lede {
+            font-size: 1.1rem;
+            font-weight: 300;
+            line-height: 1.55;
+            color: #d6daed;
+            max-width: 720px;
+            font-style: italic;
+        }
+        .hero-byline {
+            text-align: right;
+            border-left: 2px solid var(--accent);
+            padding-left: 20px;
+            font-size: 0.95rem;
+            color: #d6daed;
+        }
+        .hero-byline strong {
+            color: white;
+            font-weight: 700;
+            display: block;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        /* ============================================================
+           STATUS RIBBON
+           ============================================================ */
+        .status-ribbon {
+            background: var(--bg-soft);
+            padding: 14px 0;
+            border-bottom: 1px solid var(--divider);
+            text-align: center;
+            font-size: 0.92rem;
+        }
+        .status-pill {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-right: 12px;
+        }
+        .status-text { color: var(--text-muted); }
+
+        /* ============================================================
+           STAT CARDS
+           ============================================================ */
+        .stats-section { padding: 48px 0 24px 0; }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 6px;
+            padding: 22px 24px;
+            border-left: 3px solid var(--accent);
+            box-shadow: 0 1px 3px rgba(31, 42, 85, 0.06);
+        }
+        .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-context {
+            font-size: 0.86rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ============================================================
+           MAP SECTION
+           ============================================================ */
+        .map-section {
+            background: var(--card);
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            margin-bottom: 48px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(31, 42, 85, 0.04);
+        }
+        .map-controls {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--divider);
+            background: var(--bg-soft);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .map-controls h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.35rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .map-control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .map-control-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .map-control-group select {
+            padding: 7px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text);
+            background: white;
+            border: 1px solid var(--divider);
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 280px;
+        }
+        .map-control-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .map-content {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            min-height: 600px;
+        }
+        .map-frame {
+            position: relative;
+            background: var(--bg-soft);
+        }
+        .map-frame iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border: 0;
+            display: block;
+        }
+        .map-rail {
+            background: var(--bg-soft);
+            border-left: 1px solid var(--divider);
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .rail-section { margin-bottom: 28px; }
+        .rail-section h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.05rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .rail-section p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            background: white;
+            padding: 14px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--divider);
+            line-height: 1.55;
+        }
+        .nb-details {
+            background: white;
+            border-radius: 4px;
+            border: 1px solid var(--divider);
+            padding: 16px;
+        }
+        .nb-details .nb-name {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            margin-bottom: 6px;
+        }
+        .nb-details .nb-classification {
+            font-size: 0.8rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+            margin-bottom: 14px;
+        }
+        .nb-detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--divider);
+            font-size: 0.88rem;
+        }
+        .nb-detail-row:last-child { border-bottom: none; }
+        .nb-detail-row .key { color: var(--text-muted); }
+        .nb-detail-row .value {
+            color: var(--text);
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+        .nb-empty {
+            color: var(--text-muted);
+            font-style: italic;
+            font-size: 0.88rem;
+            padding: 14px;
+            background: var(--bg-soft);
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .map-legend {
+            padding: 16px 24px;
+            border-top: 1px solid var(--divider);
+            background: white;
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            font-size: 0.85rem;
+        }
+        .map-legend-label {
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+        .map-legend-scale {
+            display: flex;
+            flex: 1;
+        }
+        .map-legend-scale-cell {
+            flex: 1;
+            height: 16px;
+            position: relative;
+        }
+        .map-legend-scale-cell .value {
+            position: absolute;
+            top: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* ============================================================
+           FINDINGS
+           ============================================================ */
+        .findings-section { padding: 24px 0 56px 0; }
+        .findings-section h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        .findings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .finding-card {
+            background: var(--card);
+            border-radius: 6px;
+            padding: 20px 24px;
+            border-top: 2px solid var(--primary);
+            box-shadow: 0 1px 3px rgba(31, 42, 85, 0.04);
+        }
+        .finding-card .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .finding-card h3 {
+            display: inline;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-family: 'Inter', sans-serif;
+        }
+        .finding-card p {
+            font-size: 0.92rem;
+            color: var(--text);
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           METHODOLOGY
+           ============================================================ */
+        .methodology-section {
+            background: var(--card);
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            padding: 32px 36px;
+            margin-bottom: 48px;
+            box-shadow: 0 1px 3px rgba(31, 42, 85, 0.04);
+        }
+        .methodology-section h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .methodology-section p {
+            color: var(--text);
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+        .method-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.92rem;
+        }
+        .method-table th {
+            text-align: left;
+            padding: 12px 16px;
+            background: var(--primary-tint);
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-bottom: 2px solid var(--divider);
+        }
+        .method-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--divider);
+            color: var(--text);
+        }
+        .method-table tbody tr:hover { background: var(--bg-soft); }
+        .method-table .source { font-weight: 600; color: var(--primary-dark); }
+        .method-table .vintage { color: var(--text-muted); font-size: 0.88rem; }
+
+        .reproduce-block {
+            background: var(--bg-soft);
+            border-left: 3px solid var(--primary);
+            padding: 16px 20px;
+            margin-top: 20px;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.92rem;
+        }
+        .reproduce-block code {
+            background: white;
+            padding: 2px 6px;
+            font-family: ui-monospace, monospace;
+            border-radius: 3px;
+            font-size: 0.88em;
+            color: var(--primary-dark);
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        footer {
+            background: var(--primary-dark);
+            color: #d6daed;
+            padding: 40px 0 32px 0;
+            font-size: 0.9rem;
+        }
+        footer .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+        }
+        footer h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold);
+            margin-bottom: 14px;
+        }
+        footer p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        footer a {
+            color: var(--accent-light);
+            display: block;
+            margin-bottom: 6px;
+            border-bottom-color: transparent;
+        }
+        footer a:hover { color: white; border-bottom-color: var(--accent-light); }
+        footer strong { color: white; }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .map-content { grid-template-columns: 1fr; }
+            .map-rail { border-left: none; border-top: 1px solid var(--divider); }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .findings-grid { grid-template-columns: 1fr; }
+            footer .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-byline { text-align: left; border-left: none; border-top: 2px solid var(--accent); padding: 12px 0 0 0; }
+        }
+        @media (max-width: 600px) {
+            .hero-title-block h1 { font-size: 1.9rem; }
+            .stat-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-eyebrow">INTERACTIVE DASHBOARD · UNIVERSITY OF CINCINNATI</div>
+            <div class="hero-inner">
+                <div class="hero-title-block">
+                    <h1>Pittsburgh Child Pedestrian Injury Geography</h1>
+                    <p class="hero-lede">A neighborhood-level spatial analysis pairing childhood injury surveillance with proximity to playgrounds, schools, and convenience stores — identifying where prevention programs should land.</p>
+                </div>
+                <div class="hero-byline">
+                    <strong>Tolulope Adedoyin Oladeji</strong>
+                    PhD Student · Digital Epidemiology Laboratory<br>
+                    Department of Geography &amp; GIS
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATUS RIBBON -->
+    <div class="status-ribbon">
+        <div class="container">
+            <span class="status-pill">PORTFOLIO ANALYSIS</span>
+            <span class="status-text">Code and data are released for reproducibility. <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank">View GitHub Repository →</a></span>
+        </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Injuries</div>
+                    <div class="stat-value">94</div>
+                    <div class="stat-context">Pediatric pedestrian injuries citywide (Pittsburgh, 2000 vintage surveillance)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Highest Burden</div>
+                    <div class="stat-value">9</div>
+                    <div class="stat-context">Garfield — the neighborhood with the largest absolute child-injury count</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">School-Zone Rate</div>
+                    <div class="stat-value">33.1</div>
+                    <div class="stat-context">Injuries per 10,000 school-age children within 600 ft of schools — the highest concentration in the analysis</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Citywide Rate</div>
+                    <div class="stat-value">1.45</div>
+                    <div class="stat-context">Average injuries per 1,000 children under 18 across all Pittsburgh neighborhoods</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAP SECTION -->
+    <section class="container">
+        <div class="map-section">
+            <div class="map-controls">
+                <h3>Explore the Geography</h3>
+                <div class="map-control-group">
+                    <label class="map-control-label" for="nb-select">Jump to neighborhood:</label>
+                    <select id="nb-select" onchange="selectNeighborhood(this.value)">
+                        <option value="">— Select a neighborhood —</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="map-content">
+                <div class="map-frame">
+                    <iframe id="map-iframe" src="pittsburgh_injury_dashboard_map.html"
+                            title="Interactive map of Pittsburgh child pedestrian injuries"></iframe>
+                </div>
+
+                <aside class="map-rail">
+                    <div class="rail-section">
+                        <h4>About this view</h4>
+                        <p>Each polygon is a Pittsburgh neighborhood, colored by child pedestrian injury rate per 1,000 children under 18. Coral dots mark the residential locations of injured children. Select a neighborhood to focus the map and reveal its specific statistics.</p>
+                    </div>
+                    <div class="rail-section">
+                        <h4>Neighborhood Details</h4>
+                        <div id="nb-details-target" class="nb-empty">
+                            Select a neighborhood from the dropdown above to view its statistics.
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <div class="map-legend">
+                <div class="map-legend-label">Injuries per 1,000 children</div>
+                <div class="map-legend-scale">
+                    <div class="map-legend-scale-cell" style="background:#E7E0D3;"><div class="value">0–3.0</div></div>
+                    <div class="map-legend-scale-cell" style="background:#F4B8A0;"><div class="value">3.01–6.0</div></div>
+                    <div class="map-legend-scale-cell" style="background:#E07856;"><div class="value">6.01–9.0</div></div>
+                    <div class="map-legend-scale-cell" style="background:#1F2A55;"><div class="value">9.01+</div></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FINDINGS -->
+    <section class="findings-section">
+        <div class="container">
+            <h2>Four Key Findings</h2>
+            <div class="findings-grid">
+                <div class="finding-card">
+                    <span class="number">01</span>
+                    <h3>Schools have the steepest distance-decay</h3>
+                    <p>The injury rate within 600 ft of schools (33.11 per 10,000 children) is 62% higher than the rate within 1,200 ft (20.41). Convenience stores show a much shallower decay (28.65 vs 25.41) — risk is more diffuse around commercial corridors.</p>
+                </div>
+                <div class="finding-card">
+                    <span class="number">02</span>
+                    <h3>Garfield and Upper Lawrenceville are the defensible priorities</h3>
+                    <p>Garfield combines the highest absolute injury count (9) with a moderate rate (4.48). Upper Lawrenceville has both meaningful count (5) and high rate (7.33). Together they represent the cleanest evidence-based targets for prevention programming.</p>
+                </div>
+                <div class="finding-card">
+                    <span class="number">03</span>
+                    <h3>The highest rates are statistical noise</h3>
+                    <p>Hays, Bluff, and Mt. Oliver show "very high" rates above 9 per 1,000, but each is driven by a single injury in a small child population. These extreme rates reflect denominator instability, not real priority targets. The visual map can be misleading without the underlying counts.</p>
+                </div>
+                <div class="finding-card">
+                    <span class="number">04</span>
+                    <h3>Schools and stores capture different injury geographies</h3>
+                    <p>The 1,200 ft school buffer contains 49 injuries; the equivalent store buffer contains 50. But the underlying youth populations differ (24,005 vs 19,677). A single-destination prevention strategy misses meaningful injury exposure happening near the other destination type.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section class="container">
+        <div class="methodology-section">
+            <h2>Data &amp; Methodology</h2>
+            <p>Three sub-assignments synthesized into one analysis: proximity buffers around playgrounds (Assignment 7-1), buffers around schools and convenience stores (Assignment 7-2), and a neighborhood-level injury rate choropleth (Assignment 7-3). All buffers were computed in NAD83 Pennsylvania South State Plane to ensure distances are accurate in feet.</p>
+
+            <table class="method-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Variables</th>
+                        <th>Vintage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="source">Allegheny County / Pittsburgh.gdb</td>
+                        <td>Neighborhoods, Block Centroids (AGE_UNDER5, AGE_5_17), Playgrounds, ConvenienceStores</td>
+                        <td class="vintage">2000 vintage</td>
+                    </tr>
+                    <tr>
+                        <td class="source">UnitedStates.gdb / PASchools</td>
+                        <td>Pennsylvania school point locations, filtered to Pittsburgh boundary</td>
+                        <td class="vintage">2000s</td>
+                    </tr>
+                    <tr>
+                        <td class="source">Chapter7.gdb / InjuryResidences</td>
+                        <td>Pediatric pedestrian injury residences (derived from InjuriesSmith + InjuriesJones)</td>
+                        <td class="vintage">Hospital surveillance data</td>
+                    </tr>
+                    <tr>
+                        <td class="source">TIGER/Line</td>
+                        <td>Pennsylvania state boundary, county geometry</td>
+                        <td class="vintage">2010 vintage</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="reproduce-block">
+                <strong>Reproduce the analysis:</strong> Clone <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank">the repository</a>, open the Jupyter notebook at <code>notebooks/assignment_7_pittsburgh_injury.ipynb</code>, and run all cells. The notebook is fully self-contained — first run takes ~3 minutes; subsequent runs complete in under 1 minute.
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4>About this work</h4>
+                    <p>This dashboard accompanies a Python replication of three ArcGIS Pro assignments from <em>GIS Tutorial for Health</em> (Kurland &amp; Gorr). Original curriculum design by <strong>Dr. Diego Cuadros</strong>, Digital Epidemiology Laboratory, University of Cincinnati. The Python implementation, the buffer-analysis pipeline, the neighborhood aggregation, and the interpretive discussion are by the author.</p>
+                </div>
+                <div>
+                    <h4>Author</h4>
+                    <p><strong>Tolulope Adedoyin Oladeji</strong><br>
+                    PhD Student<br>
+                    Digital Epidemiology Laboratory<br>
+                    Department of Geography &amp; GIS<br>
+                    University of Cincinnati</p>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank">GitHub Repository</a>
+                    <a href="https://scholar.google.com/citations?user=pPv5YB8AAAAJ&hl=en" target="_blank">Google Scholar</a>
+                    <a href="https://www.linkedin.com/in/tolulope-oladeji-aa988a192/" target="_blank">LinkedIn</a>
+                    <a href="https://adedoyinsola.medium.com" target="_blank">Medium</a>
+                    <a href="../">Portfolio Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const iframe = document.getElementById("map-iframe");
+        const select = document.getElementById("nb-select");
+        const detailsTarget = document.getElementById("nb-details-target");
+
+        window.addEventListener("message", function(event) {
+            if (!event.data || !event.data.type) return;
+
+            if (event.data.type === "neighborhoods-list") {
+                const items = event.data.neighborhoods.slice().sort((a, b) => a.name.localeCompare(b.name));
+                items.forEach(nb => {
+                    const opt = document.createElement("option");
+                    opt.value = nb.name;
+                    opt.textContent = nb.name + " (n=" + nb.injuries + ")";
+                    select.appendChild(opt);
+                });
+            } else if (event.data.type === "neighborhood-selected") {
+                const nb = event.data.neighborhood;
+                const cityRate = event.data.cityRate;
+                const diff = nb.rate - cityRate;
+                const diffSign = diff > 0 ? "+" : "";
+                detailsTarget.classList.remove("nb-empty");
+                detailsTarget.classList.add("nb-details");
+                detailsTarget.innerHTML = `
+                    <div class="nb-name">${nb.name}</div>
+                    <div class="nb-classification">${nb.classification}</div>
+                    <div class="nb-detail-row">
+                        <span class="key">Injuries</span>
+                        <span class="value">${nb.injuries}</span>
+                    </div>
+                    <div class="nb-detail-row">
+                        <span class="key">Children under 18</span>
+                        <span class="value">${nb.youth.toLocaleString()}</span>
+                    </div>
+                    <div class="nb-detail-row">
+                        <span class="key">Rate per 1,000</span>
+                        <span class="value">${nb.rate.toFixed(2)}</span>
+                    </div>
+                    <div class="nb-detail-row">
+                        <span class="key">vs city average</span>
+                        <span class="value">${diffSign}${diff.toFixed(2)}</span>
+                    </div>
+                `;
+            }
+        });
+
+        function selectNeighborhood(name) {
+            if (!name) {
+                detailsTarget.className = "nb-empty";
+                detailsTarget.textContent = "Select a neighborhood from the dropdown above to view its statistics.";
+                return;
+            }
+            iframe.contentWindow.postMessage({type: "fly-to-neighborhood", name: name}, "*");
+        }
+    </script>
+
+</body>
+</html>
