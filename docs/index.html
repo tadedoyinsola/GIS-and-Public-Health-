@@ -153,6 +153,10 @@
             background-color: #e8d4ec;
             color: #5e3c99;
         }
+        .project-card .type-label.dashboard-indigo {
+            background-color: #e0e3f0;
+            color: #2D3A6E;
+        }
         .bio {
             background-color: white;
             border: 1px solid #e1e1e1;
@@ -218,7 +222,7 @@
         </header>
 
         <p class="intro">
-            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, health insurance access, and environmental health. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
+            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, health insurance access, environmental health, and injury surveillance. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
         </p>
 
         <h2>Projects</h2>
@@ -287,6 +291,22 @@
                 </div>
                 <div class="meta">geopandas · pysal · folium · 416 tracts</div>
                 <a href="allegheny/" class="cta">View project →</a>
+            </article>
+
+            <article class="project-card">
+                <div class="project-tag">
+                    Injury Surveillance &amp; Prevention
+                    <span class="type-label dashboard-indigo">Dashboard</span>
+                </div>
+                <h3>Pittsburgh Child Pedestrian Injury Geography</h3>
+                <p>
+                    A neighborhood-level spatial analysis pairing childhood injury surveillance with proximity to playgrounds, schools, and convenience stores. Three sub-analyses synthesized into one decision framework for prevention programming.
+                </p>
+                <div class="findings">
+                    <strong>Methodological centerpiece:</strong> Demonstrates buffer-based proximity analysis at 600 ft and 1,200 ft, identifying that the school-zone injury rate (33.11 per 10,000 children) is 62% higher than the broader school neighborhood — supporting U.S. DOT Safe Streets for All targeting priorities.
+                </div>
+                <div class="meta">geopandas · folium · 94 neighborhoods · 4 destination types</div>
+                <a href="pittsburgh/" class="cta">View project →</a>
             </article>
 
         </div>
