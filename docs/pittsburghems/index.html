@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pittsburgh EMS Zone Population &amp; Vulnerability Geography</title>
+    <meta name="description" content="A spatial analysis of population, demographics, and youth poverty across Pittsburgh's emergency medical service zones. Built with Python, GeoPandas, and Folium by Tolulope Adedoyin Oladeji.">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            /* Forest green + warm rust palette */
+            --primary-dark: #1F3A2E;        /* deep forest */
+            --primary: #2D5A45;             /* forest green */
+            --primary-light: #7FAE6E;       /* sage */
+            --primary-tint: #E8EFE5;        /* light forest tint */
+
+            --accent: #B85844;              /* warm rust */
+            --accent-light: #E8B5A0;        /* soft peach */
+            --accent-soft: #F4E4DC;         /* rust wash */
+
+            --gold: #C99847;                /* warm amber */
+
+            --bg: #F8F5EE;                  /* bone white with green undertone */
+            --bg-soft: #EFEBE0;             /* warmer cream */
+            --card: #FFFFFF;
+
+            --text: #1A2421;                /* near-black with green undertone */
+            --text-muted: #5E6862;
+            --divider: #E7E0D3;             /* warm divider */
+
+            --success: #3D7A5C;
+            --warning: #C5841F;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 32px;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+
+        a {
+            color: var(--accent);
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.15s;
+        }
+        a:hover { border-bottom-color: var(--accent); }
+
+        /* ============================================================
+           HERO
+           ============================================================ */
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: 64px 0 80px 0;
+            position: relative;
+        }
+        .hero-eyebrow {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: var(--gold);
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+        .hero-inner {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 48px;
+            align-items: flex-start;
+        }
+        .hero-title-block h1 {
+            font-size: 2.8rem;
+            color: white;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 14px;
+            max-width: 740px;
+        }
+        .hero-lede {
+            font-size: 1.1rem;
+            font-weight: 300;
+            line-height: 1.55;
+            color: #d6e0d5;
+            max-width: 720px;
+            font-style: italic;
+        }
+        .hero-byline {
+            text-align: right;
+            border-left: 2px solid var(--accent);
+            padding-left: 20px;
+            font-size: 0.95rem;
+            color: #d6e0d5;
+        }
+        .hero-byline strong {
+            color: white;
+            font-weight: 700;
+            display: block;
+            font-size: 1.05rem;
+            margin-bottom: 4px;
+        }
+
+        /* ============================================================
+           STATUS RIBBON
+           ============================================================ */
+        .status-ribbon {
+            background: var(--bg-soft);
+            padding: 14px 0;
+            border-bottom: 1px solid var(--divider);
+            text-align: center;
+            font-size: 0.92rem;
+        }
+        .status-pill {
+            display: inline-block;
+            background: var(--accent);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.78rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-right: 12px;
+        }
+        .status-text { color: var(--text-muted); }
+
+        /* ============================================================
+           STAT CARDS
+           ============================================================ */
+        .stats-section { padding: 48px 0 24px 0; }
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+        .stat-card {
+            background: var(--card);
+            border-radius: 6px;
+            padding: 22px 24px;
+            border-left: 3px solid var(--accent);
+            box-shadow: 0 1px 3px rgba(31, 58, 46, 0.06);
+        }
+        .stat-label {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .stat-value {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 2.4rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            line-height: 1;
+            margin-bottom: 8px;
+        }
+        .stat-context {
+            font-size: 0.86rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        /* ============================================================
+           MAP SECTION
+           ============================================================ */
+        .map-section {
+            background: var(--card);
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            margin-bottom: 48px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(31, 58, 46, 0.04);
+        }
+        .map-controls {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--divider);
+            background: var(--bg-soft);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .map-controls h3 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.35rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+        }
+        .map-control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .map-control-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        .map-control-group select {
+            padding: 7px 12px;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            color: var(--text);
+            background: white;
+            border: 1px solid var(--divider);
+            border-radius: 4px;
+            cursor: pointer;
+            min-width: 240px;
+        }
+        .map-control-group select:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-soft);
+        }
+
+        .map-content {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            min-height: 600px;
+        }
+        .map-frame {
+            position: relative;
+            background: var(--bg-soft);
+        }
+        .map-frame iframe {
+            width: 100%;
+            height: 100%;
+            min-height: 600px;
+            border: 0;
+            display: block;
+        }
+        .map-rail {
+            background: var(--bg-soft);
+            border-left: 1px solid var(--divider);
+            padding: 24px;
+            overflow-y: auto;
+        }
+        .rail-section { margin-bottom: 28px; }
+        .rail-section h4 {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 1.05rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            padding-bottom: 4px;
+            border-bottom: 2px solid var(--accent);
+            margin-bottom: 12px;
+            display: inline-block;
+        }
+        .rail-section p {
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            background: white;
+            padding: 14px 16px;
+            border-radius: 4px;
+            border: 1px solid var(--divider);
+            line-height: 1.55;
+        }
+
+        /* ============================================================
+           CHARTS SECTION — THE BAR CHARTS LIVE HERE
+           ============================================================ */
+        .charts-section {
+            padding: 24px 0 48px 0;
+        }
+        .charts-section .section-header {
+            margin-bottom: 24px;
+        }
+        .charts-section h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+        .charts-section .section-intro {
+            font-size: 1rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin-top: 12px;
+            line-height: 1.6;
+        }
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-top: 32px;
+        }
+        .chart-card {
+            background: var(--card);
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(31, 58, 46, 0.04);
+        }
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+        .chart-card .chart-eyebrow {
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        .chart-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: var(--primary-dark);
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+        .chart-card p {
+            font-size: 0.92rem;
+            color: var(--text);
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        .chart-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            border: 1px solid var(--divider);
+            display: block;
+        }
+
+        /* ============================================================
+           FINDINGS
+           ============================================================ */
+        .findings-section { padding: 24px 0 56px 0; }
+        .findings-section h2 {
+            font-size: 1.8rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+        .findings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+        .finding-card {
+            background: var(--card);
+            border-radius: 6px;
+            padding: 20px 24px;
+            border-top: 2px solid var(--primary);
+            box-shadow: 0 1px 3px rgba(31, 58, 46, 0.04);
+        }
+        .finding-card .number {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: var(--accent);
+            font-weight: 700;
+            margin-right: 6px;
+        }
+        .finding-card h3 {
+            display: inline;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-dark);
+            font-family: 'Inter', sans-serif;
+        }
+        .finding-card p {
+            font-size: 0.92rem;
+            color: var(--text);
+            margin-top: 10px;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           METHODOLOGY
+           ============================================================ */
+        .methodology-section {
+            background: var(--card);
+            border: 1px solid var(--divider);
+            border-radius: 6px;
+            padding: 32px 36px;
+            margin-bottom: 48px;
+            box-shadow: 0 1px 3px rgba(31, 58, 46, 0.04);
+        }
+        .methodology-section h2 {
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 8px;
+            display: inline-block;
+            margin-bottom: 16px;
+        }
+        .methodology-section p {
+            color: var(--text);
+            margin-bottom: 16px;
+            font-size: 0.95rem;
+        }
+        .method-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            font-size: 0.92rem;
+        }
+        .method-table th {
+            text-align: left;
+            padding: 12px 16px;
+            background: var(--primary-tint);
+            color: var(--primary-dark);
+            font-weight: 600;
+            border-bottom: 2px solid var(--divider);
+        }
+        .method-table td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--divider);
+            color: var(--text);
+        }
+        .method-table tbody tr:hover { background: var(--bg-soft); }
+        .method-table .source { font-weight: 600; color: var(--primary-dark); }
+        .method-table .vintage { color: var(--text-muted); font-size: 0.88rem; }
+
+        .reproduce-block {
+            background: var(--bg-soft);
+            border-left: 3px solid var(--primary);
+            padding: 16px 20px;
+            margin-top: 20px;
+            border-radius: 0 4px 4px 0;
+            font-size: 0.92rem;
+        }
+        .reproduce-block code {
+            background: white;
+            padding: 2px 6px;
+            font-family: ui-monospace, monospace;
+            border-radius: 3px;
+            font-size: 0.88em;
+            color: var(--primary-dark);
+        }
+
+        /* ============================================================
+           FOOTER
+           ============================================================ */
+        footer {
+            background: var(--primary-dark);
+            color: #d6e0d5;
+            padding: 40px 0 32px 0;
+            font-size: 0.9rem;
+        }
+        footer .footer-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 40px;
+        }
+        footer h4 {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--gold);
+            margin-bottom: 14px;
+        }
+        footer p {
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        footer a {
+            color: var(--accent-light);
+            display: block;
+            margin-bottom: 6px;
+            border-bottom-color: transparent;
+        }
+        footer a:hover { color: white; border-bottom-color: var(--accent-light); }
+        footer strong { color: white; }
+
+        /* ============================================================
+           RESPONSIVE
+           ============================================================ */
+        @media (max-width: 1024px) {
+            .map-content { grid-template-columns: 1fr; }
+            .map-rail { border-left: none; border-top: 1px solid var(--divider); }
+            .stat-grid { grid-template-columns: repeat(2, 1fr); }
+            .findings-grid { grid-template-columns: 1fr; }
+            .charts-grid { grid-template-columns: 1fr; }
+            footer .footer-grid { grid-template-columns: 1fr; gap: 24px; }
+            .hero-inner { grid-template-columns: 1fr; }
+            .hero-byline { text-align: left; border-left: none; border-top: 2px solid var(--accent); padding: 12px 0 0 0; }
+        }
+        @media (max-width: 600px) {
+            .hero-title-block h1 { font-size: 1.9rem; }
+            .stat-grid { grid-template-columns: 1fr; }
+            .container { padding: 0 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HERO -->
+    <header class="hero">
+        <div class="container">
+            <div class="hero-eyebrow">INTERACTIVE DASHBOARD · UNIVERSITY OF CINCINNATI</div>
+            <div class="hero-inner">
+                <div class="hero-title-block">
+                    <h1>Pittsburgh EMS Zone Population &amp; Vulnerability Geography</h1>
+                    <p class="hero-lede">A spatial analysis of population, demographic structure, and youth poverty across Pittsburgh's nine emergency medical service zones — supporting federal preparedness targeting under CDC PHEP and HRSA MCH Block Grant frameworks.</p>
+                </div>
+                <div class="hero-byline">
+                    <strong>Tolulope Adedoyin Oladeji</strong>
+                    PhD Student · Digital Epidemiology Laboratory<br>
+                    Department of Geography &amp; GIS
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATUS RIBBON -->
+    <div class="status-ribbon">
+        <div class="container">
+            <span class="status-pill">PORTFOLIO ANALYSIS</span>
+            <span class="status-text">Code and data are released for reproducibility. <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank">View GitHub Repository →</a></span>
+        </div>
+    </div>
+
+    <!-- STAT CARDS -->
+    <section class="stats-section">
+        <div class="container">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-label">EMS Zones</div>
+                    <div class="stat-value">9</div>
+                    <div class="stat-context">Operational EMS service-delivery zones across the City of Pittsburgh</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Youth in Poverty</div>
+                    <div class="stat-value">18,028</div>
+                    <div class="stat-context">Apportioned children under 18 living in poverty across all EMS zones</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Citywide Poverty Rate</div>
+                    <div class="stat-value">27.2%</div>
+                    <div class="stat-context">Share of Pittsburgh children under 18 living in poverty</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Highest-Burden Zone</div>
+                    <div class="stat-value">Zone 4</div>
+                    <div class="stat-context">4,006 children in poverty — the largest absolute child poverty burden</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- MAP SECTION -->
+    <section class="container">
+        <div class="map-section">
+            <div class="map-controls">
+                <h3>Explore the Geography</h3>
+                <div class="map-control-group">
+                    <span class="map-control-label">Use the dropdown inside the map to navigate to a specific EMS zone</span>
+                </div>
+            </div>
+
+            <div class="map-content">
+                <div class="map-frame">
+                    <iframe id="map-iframe" src="ems_zone_dashboard_map.html"
+                            title="Interactive map of Pittsburgh EMS zones"></iframe>
+                </div>
+
+                <aside class="map-rail">
+                    <div class="rail-section">
+                        <h4>About this view</h4>
+                        <p>The map shows Pittsburgh's nine EMS zones, with the default view colored by youth poverty count (rust gradient). Toggle the layer control in the upper-right to view by total population instead. Use the dropdown in the upper-left of the map to fly to a specific zone and view its full statistics.</p>
+                    </div>
+                    <div class="rail-section">
+                        <h4>Why EMS zones?</h4>
+                        <p>EMS zones are operational service-delivery boundaries used for ambulance dispatch and emergency-response planning. Knowing the population distribution and vulnerability within each zone supports federal preparedness funding allocation under CDC PHEP and HRSA targeting frameworks.</p>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- CHARTS SECTION -->
+    <section class="charts-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>The Data, Visualized</h2>
+                <p class="section-intro">
+                    Four complementary views of the EMS zone data. The first three answer ranking questions; the fourth reveals the methodological tension at the heart of vulnerability-based targeting.
+                </p>
+            </div>
+
+            <div class="charts-grid">
+
+                <!-- Chart 1 -->
+                <div class="chart-card">
+                    <div class="chart-eyebrow">RANKED COMPARISON</div>
+                    <h3>Youth Poverty Rate by Zone</h3>
+                    <p>Zones above the citywide rate (27.2%) are shown in forest green; zones below are shown in soft rust. Zone 5 stands out as the clear outlier at 43.2%.</p>
+                    <img src="charts/chart1_poverty_rate_by_zone.png"
+                         alt="Horizontal bar chart of youth poverty rate by EMS zone, with citywide average reference line">
+                </div>
+
+                <!-- Chart 2 -->
+                <div class="chart-card">
+                    <div class="chart-eyebrow">DEMOGRAPHIC STRUCTURE</div>
+                    <h3>Population by Age Group</h3>
+                    <p>Each bar shows the demographic composition of one zone, segmented into children under 18, working-age adults, and adults over 65. Zone 1 (55,057 residents) is the largest.</p>
+                    <img src="charts/chart2_demographic_structure.png"
+                         alt="Stacked horizontal bar chart of population by age group across EMS zones">
+                </div>
+
+                <!-- Chart 3 — full width because it is the analytical centerpiece -->
+                <div class="chart-card full-width">
+                    <div class="chart-eyebrow">METHODOLOGICAL CENTERPIECE</div>
+                    <h3>Count vs Rate: Two Targeting Logics, Different Priorities</h3>
+                    <p>Each dot is an EMS zone, sized by under-18 population. The X axis is absolute youth poverty count; the Y axis is poverty rate. Median lines divide the chart into four quadrants. Rust dots in the upper-right are "primary targets" (high count AND high rate) — these are the most defensible priorities for federal vulnerability-targeted funding. Forest green dots (high count, lower rate) and gold dots (high rate, lower count) are secondary priorities depending on the targeting logic chosen. This chart shows visually why a single-metric ranking — by count alone or rate alone — produces different recommendations.</p>
+                    <img src="charts/chart3_count_vs_rate_scatter.png"
+                         alt="Scatter plot of youth poverty count vs poverty rate by EMS zone, with quadrant-based priority classification">
+                </div>
+
+                <!-- Chart 4 -->
+                <div class="chart-card full-width">
+                    <div class="chart-eyebrow">PEDIATRIC SUB-STRUCTURE</div>
+                    <h3>Child Age Structure by Zone</h3>
+                    <p>Each zone's under-18 population is segmented into under-5 (rust) and 5-17 (forest green) sub-groups. This distinction matters for EMS preparedness because pediatric emergency response protocols differ significantly between infant/toddler and school-age children.</p>
+                    <img src="charts/chart4_child_age_structure.png"
+                         alt="Stacked horizontal bar chart of child age structure by EMS zone">
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- FINDINGS -->
+    <section class="findings-section">
+        <div class="container">
+            <h2>Four Key Findings</h2>
+            <div class="findings-grid">
+                <div class="finding-card">
+                    <span class="number">01</span>
+                    <h3>Zones 4 and 1 are the cleanest primary targets</h3>
+                    <p>Both have high absolute youth poverty counts (4,006 and 3,509) and rates above the citywide average. With large enough denominators (11,683 and 11,769 children) for the rates to be statistically stable, they are the most defensible priorities under federal vulnerability-targeted preparedness frameworks.</p>
+                </div>
+                <div class="finding-card">
+                    <span class="number">02</span>
+                    <h3>Zone 5 is the outlier on rate</h3>
+                    <p>At 43.2%, Zone 5 has the highest youth poverty rate in the city, well above the 27.2% citywide average. With 2,185 children in poverty, it captures real burden — not just a small-denominator artifact. This is the strongest case for rate-based targeting.</p>
+                </div>
+                <div class="finding-card">
+                    <span class="number">03</span>
+                    <h3>Zone 9 should be flagged with caveat</h3>
+                    <p>Zone 9's 34.7% poverty rate is computed from only 170 children — a denominator too small for the rate to be statistically stable. Federal allocation frameworks should treat Zone 9's rate as a flag for further investigation rather than a comparison to other zones.</p>
+                </div>
+                <div class="finding-card">
+                    <span class="number">04</span>
+                    <h3>Demographic structure varies meaningfully across zones</h3>
+                    <p>Pediatric-to-adult ratios, under-5 share of children, and over-65 populations all vary across zones. EMS protocols differ for pediatric vs geriatric vs adult-onset emergencies; allocation should reflect demographic asymmetry, not just total population.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- METHODOLOGY -->
+    <section class="container">
+        <div class="methodology-section">
+            <h2>Data &amp; Methodology</h2>
+            <p>Two sub-assignments synthesized into one analysis: Assignment 8-1 aggregates total population, under-18, and over-65 across EMS zones via spatial join of block centroids. Assignment 8-2 apportions youth poverty from the block-group level down to centroids via population weighting, then aggregates to EMS zones.</p>
+
+            <p>The apportionment formula:</p>
+
+            <div class="reproduce-block">
+                <strong>youth_poverty_centroid</strong> = block_group_youth_poverty × (centroid_under_18 / block_group_under_18)
+            </div>
+
+            <p style="margin-top: 16px;">This standard demographic apportionment assumes poverty is distributed proportionally to under-18 population within each block group.</p>
+
+            <table class="method-table">
+                <thead>
+                    <tr>
+                        <th>Source</th>
+                        <th>Variables</th>
+                        <th>Vintage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="source">Pittsburgh.gdb / EMSZones</td>
+                        <td>Emergency medical service zone polygons (after dissolve by ZONE)</td>
+                        <td class="vintage">Operational vintage</td>
+                    </tr>
+                    <tr>
+                        <td class="source">Pittsburgh.gdb / BlockCentroids</td>
+                        <td>POP2000, AGE_UNDER5, AGE_5_17, AGE_65_UP per census block</td>
+                        <td class="vintage">2000 U.S. Census</td>
+                    </tr>
+                    <tr>
+                        <td class="source">Pittsburgh.gdb / BlkGrpSF1</td>
+                        <td>Block-group under-18 population (denominator for apportionment)</td>
+                        <td class="vintage">2000 U.S. Census</td>
+                    </tr>
+                    <tr>
+                        <td class="source">Pittsburgh.gdb / BlkGrpSF3</td>
+                        <td>POVUndr18 — block-group youth poverty count</td>
+                        <td class="vintage">2000 U.S. Census</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="reproduce-block">
+                <strong>Reproduce the analysis:</strong> Clone <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank">the repository</a>, open the Jupyter notebook at <code>notebooks/assignment_8_ems_zones.ipynb</code>, and run all cells. First run takes ~2 minutes; subsequent runs under 1 minute.
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div>
+                    <h4>About this work</h4>
+                    <p>This dashboard accompanies a Python replication of two ArcGIS Pro assignments from <em>GIS Tutorial for Health</em> (Kurland &amp; Gorr). Original curriculum design by <strong>Dr. Diego Cuadros</strong>, Digital Epidemiology Laboratory, University of Cincinnati. The Python implementation, the apportionment pipeline, the visualization design, and the interpretive discussion are by the author.</p>
+                </div>
+                <div>
+                    <h4>Author</h4>
+                    <p><strong>Tolulope Adedoyin Oladeji</strong><br>
+                    PhD Student<br>
+                    Digital Epidemiology Laboratory<br>
+                    Department of Geography &amp; GIS<br>
+                    University of Cincinnati</p>
+                </div>
+                <div>
+                    <h4>Connect</h4>
+                    <a href="https://github.com/tadedoyinsola/GIS-and-Public-Health-" target="_blank">GitHub Repository</a>
+                    <a href="https://scholar.google.com/citations?user=pPv5YB8AAAAJ&hl=en" target="_blank">Google Scholar</a>
+                    <a href="https://www.linkedin.com/in/tolulope-oladeji-aa988a192/" target="_blank">LinkedIn</a>
+                    <a href="https://adedoyinsola.medium.com" target="_blank">Medium</a>
+                    <a href="../">Portfolio Home</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>
