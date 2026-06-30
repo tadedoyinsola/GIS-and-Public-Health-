@@ -157,6 +157,10 @@
             background-color: #e0e3f0;
             color: #2D3A6E;
         }
+        .project-card .type-label.dashboard-forest {
+            background-color: #d8e5d2;
+            color: #1F3A2E;
+        }
         .bio {
             background-color: white;
             border: 1px solid #e1e1e1;
@@ -222,7 +226,7 @@
         </header>
 
         <p class="intro">
-            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, health insurance access, environmental health, and injury surveillance. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
+            A growing collection of reproducible geospatial public health analyses spanning cancer epidemiology, demographic geography, health insurance access, environmental health, injury surveillance, and emergency preparedness. Each project pairs full Python source code with either an interactive web map or a publication-quality static visualization, hosted free via GitHub Pages.
         </p>
 
         <h2>Projects</h2>
@@ -307,6 +311,22 @@
                 </div>
                 <div class="meta">geopandas · folium · 94 neighborhoods · 4 destination types</div>
                 <a href="pittsburgh/" class="cta">View project →</a>
+            </article>
+
+            <article class="project-card">
+                <div class="project-tag">
+                    Emergency Preparedness
+                    <span class="type-label dashboard-forest">Dashboard</span>
+                </div>
+                <h3>Pittsburgh EMS Zone Population &amp; Vulnerability</h3>
+                <p>
+                    A spatial analysis of population, demographic structure, and youth poverty across Pittsburgh's nine emergency medical service zones — with population-weighted apportionment of block-group poverty data to operational EMS boundaries.
+                </p>
+                <div class="findings">
+                    <strong>Methodological centerpiece:</strong> Demonstrates spatial apportionment of block-group attributes to operational boundaries, supporting CDC PHEP and HRSA MCH Block Grant geographic targeting. Identifies Zones 4 and 1 as primary vulnerability targets (highest count + above-average rate) and flags Zone 9 as a small-denominator caveat.
+                </div>
+                <div class="meta">geopandas · folium · 9 EMS zones · 7,400+ block centroids</div>
+                <a href="ems-zones/" class="cta">View project →</a>
             </article>
 
         </div>
