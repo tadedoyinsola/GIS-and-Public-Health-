@@ -99,6 +99,19 @@
             margin-top: 10px;
             font-style: italic;
         }
+        .cta {
+            display: inline-block;
+            background-color: #c0392b;
+            color: white;
+            padding: 14px 28px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.0rem;
+            margin: 6px 0 26px 0;
+            transition: background-color 0.15s ease;
+        }
+        .cta:hover { background-color: #962d22; color: white; }
         .key-finding {
             background-color: #fdf4f3;
             border-left: 4px solid #c0392b;
@@ -219,6 +232,7 @@
         <p class="map-caption">
             Three-panel comparison of percentage uninsured (A), percentage Black (B), and percentage Hispanic (C) populations across California counties. Each panel uses quantile classification to support cross-panel rank comparison.
         </p>
+        <a href="california_uninsured_interactive.html" class="cta">Open the Interactive Map →</a>
 
         <h2>The Headline Finding</h2>
 
@@ -285,11 +299,15 @@
             <span class="stack-tag">matplotlib</span>
             <span class="stack-tag">pyogrio</span>
             <span class="stack-tag">scipy.stats</span>
+            <span class="stack-tag">GeoLibre (interactive companion)</span>
         </div>
 
-        <h2>Why This Project Is Static, Not Interactive</h2>
+        <h2>Static Figure and Interactive Companion</h2>
         <p>
-            The other projects in this portfolio use interactive Folium maps to support exploratory analysis across multiple variables. This California project is presented as a static three-panel comparison instead — and that is a deliberate choice. The substantive question (does uninsured geography align with minority geography?) is best answered by viewing all three maps side by side at the same scale, with the same projection, in a single frame. Allowing the user to toggle between layers obscures the comparison rather than aiding it. Some analyses benefit from interactivity; others benefit from a single well-designed static composition. This is the latter.
+            The three-panel static figure remains the primary evidence for this analysis. The substantive question (does uninsured geography align with minority geography?) is best answered by viewing all three maps side by side at the same scale, with the same projection, in a single frame, which a layer toggle cannot replicate.
+        </p>
+        <p>
+            The interactive companion map, built with <a href="https://geolibre.app" target="_blank" rel="noopener">GeoLibre</a>, serves a different purpose: it lets a reader look up any individual county. Clicking a county reports its uninsured rate, uninsured count, Black and Hispanic population shares, and total population. The companion uses the same data layer, percentage formulas, five-class quantile breaks, and colour schemes as the static figure, and outlines the three counties in the top quintile on all three variables (Kern, Kings, and Los Angeles). Panels A, B, and C are switched on and off in the Layers panel.
         </p>
 
         <div class="meta-note">
