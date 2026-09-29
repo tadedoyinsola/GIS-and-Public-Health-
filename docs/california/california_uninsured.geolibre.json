@@ -3,10 +3,10 @@
   "name": "California Counties: Uninsured Rate vs. Minority Population Share",
   "mapView": {
     "center": [
-      -119.4,
-      37.3
+      -119.3,
+      37.25
     ],
-    "zoom": 5.2,
+    "zoom": 5.75,
     "bearing": 0,
     "pitch": 0
   },
@@ -15,7 +15,7 @@
   "basemapOpacity": 1,
   "layers": [
     {
-      "id": "bbec9f21-9ddb-4de0-8dc3-898a94df716f",
+      "id": "b4d6bae5-3df5-4bde-b925-973854c5e92f",
       "name": "A. Percentage Uninsured",
       "type": "geojson",
       "visible": true,
@@ -14550,7 +14550,7 @@
       }
     },
     {
-      "id": "e27f3f9e-c9cd-401c-b4e4-651b429ee3af",
+      "id": "7adce4d3-a000-41eb-8bd3-71fdec88ede6",
       "name": "B. Percentage Black (2000)",
       "type": "geojson",
       "visible": false,
@@ -29085,7 +29085,7 @@
       }
     },
     {
-      "id": "e39f3621-f0e7-436d-8ea2-1cea26c255ba",
+      "id": "71419aa4-9035-41d0-9982-6a64ca79cc0e",
       "name": "C. Percentage Hispanic (2000)",
       "type": "geojson",
       "visible": false,
@@ -43620,7 +43620,7 @@
       }
     },
     {
-      "id": "e8e14b2e-2856-4bb1-ac85-63f4a6a6f4e8",
+      "id": "7b5ade0d-d358-4475-9b1a-db1df7936aba",
       "name": "Top quintile on all three (Kern, Kings, Los Angeles)",
       "type": "geojson",
       "visible": true,
@@ -44332,5 +44332,13 @@
     "author": "Tolulope Adedoyin Oladeji",
     "source": "US Census Bureau (2000) and Small Area Health Insurance Estimates; CACounties layer, GIS Tutorial for Health data",
     "classification": "Quantile, 5 classes, identical to the static figure (Assignment 3-1)"
+  },
+  "legend": {
+    "title": "Legend",
+    "groupByLayer": true,
+    "order": [],
+    "overrides": {},
+    "panelPosition": "bottom-right",
+    "panelVisible": true
   }
 }
